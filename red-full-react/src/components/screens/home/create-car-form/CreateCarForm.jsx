@@ -1,6 +1,10 @@
 import React, {useState} from 'react';
 import styles from './CreateCarForm.module.css'
 import {useForm} from 'react-hook-form'
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {CarService} from "../../../../services/car.service.js";
+import ErrorMessage from "./ErrorMessage.jsx";
+import {useCreateCar} from "./useCreateCar.js";
 
 // нужно было для реализации формы без react-hook-forms
 /*const clearData = {
@@ -9,8 +13,9 @@ import {useForm} from 'react-hook-form'
     image: ''
 }*/
 
-const CreateCarForm = ({setCars}) => {
+const CreateCarForm = () => {
 
+    // использование бибилотеки react-hook-form
     const {register,
         reset,
         handleSubmit,
@@ -19,8 +24,39 @@ const CreateCarForm = ({setCars}) => {
         mode: 'onChange'
     })
 
-    const createCar = (data) => {
-        console.log(data)
+    const { createCar } = useCreateCar(reset)
+
+    return (
+        <form className={styles.form} onSubmit={handleSubmit(createCar)}>
+            <input
+                {...register('name', {required: 'Name is required!'})}
+                placeholder='Name'
+            />
+
+            <ErrorMessage errors={errors}/>
+
+            <input
+                {...register('price', {required: true})}
+                placeholder='Price'
+            />
+            <input
+                {...register('image', {required: true})}
+                placeholder='Image'
+            />
+
+            <button className='btn'>Create</button>
+        </form>
+    );
+
+    // код с react-query вынесли в useCreateCar
+    /*const createCar = (data) => {
+        // data передаётся за счёт react-hook-form
+
+        // вызов метода (через react-query), отправляющего данные о новой машине на сервер
+        mutate(data)
+
+        // код ниже был актуален при отсутствии взаимодействия с сервером (отправка новой машины туда) с помощью react-query
+        /!*console.log(data)
 
         setCars(prev => [
             ...prev,
@@ -30,8 +66,8 @@ const CreateCarForm = ({setCars}) => {
             }
         ])
 
-        reset()
-    }
+        reset()*!/
+    }*/
 
     // пример реализации одного инпута без использования react-hook-form
     // const [data, setData] = useState(clearData)
@@ -62,32 +98,6 @@ const CreateCarForm = ({setCars}) => {
             <button className='btn' onClick={e => createCar(e)}>Create</button>
         </form>
     )*/
-
-    return (
-        <form className={styles.form} onSubmit={handleSubmit(createCar)}>
-            <input
-                {...register('name', {required: 'Name is required!'})}
-                placeholder='Name'
-            />
-
-            {errors?.name?.message && (
-                <p style={{ color: 'red' }}>
-                    {errors.name.message}
-                </p>
-            )}
-
-            <input
-                {...register('price', {required: true})}
-                placeholder='Price'
-            />
-            <input
-                {...register('image', {required: true})}
-                placeholder='Image'
-            />
-
-            <button className='btn'>Create</button>
-        </form>
-    );
 };
 
 export default CreateCarForm;

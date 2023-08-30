@@ -7,3 +7,5 @@
 + react-hook-form
 + react-router-dom
 + react-query (tanstack)
+
+Пакетный менеджер - yarn, также используется Vite вместо webpack.
